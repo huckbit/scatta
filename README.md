@@ -58,13 +58,4 @@ Nothing is sent anywhere: screenshots stay on your computer.
 
 ## Development
 
-Tests use Node's built-in test runner, so there's nothing to install apart from Node 20 or newer (`brew install node` on a Mac).
-
-```sh
-npm test
-```
-
-- `test/popup.test.js` runs `popup.js` against fake Chrome APIs and a fake popup, and checks both capture modes, the Save as file toggle and the error messages.
-- `test/extension.test.js` checks that `manifest.json`, `popup.html` and `popup.js` fit together (files exist, permissions match the code, Copy visible area is the default).
-
-GitHub Actions runs the tests on every pull request into `main` ([.github/workflows/test.yml](.github/workflows/test.yml)).
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for running the tests and how CI works.
