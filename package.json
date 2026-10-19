@@ -1,5 +1,5 @@
 {
-  "name": "page-snap",
+  "name": "tab-selfie",
   "private": true,
   "description": "Chrome extension: screenshot the visible area or full page to the clipboard or a file.",
   "scripts": {
