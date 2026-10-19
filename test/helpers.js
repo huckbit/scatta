@@ -159,7 +159,7 @@ async function loadPopup(options = {}) {
   };
 
   vm.createContext(sandbox);
-  vm.runInContext(POPUP_JS, sandbox, { filename: "popup.js" });
+  vm.runInContext(POPUP_JS, sandbox, { filename: path.join(ROOT, "popup.js") });
   await flush(); // let the stored setting load
 
   return { popup: sandbox, elements, actionLabels, calls };

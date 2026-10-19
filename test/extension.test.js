@@ -35,6 +35,17 @@ describe("manifest.json", () => {
     }
   });
 
+  test("has PNG icons that match their declared sizes", () => {
+    const icons = { ...manifest.icons, ...manifest.action.default_icon };
+    for (const [size, file] of Object.entries(icons)) {
+      const bytes = fs.readFileSync(path.join(ROOT, file));
+      assert.equal(bytes.toString("hex", 0, 8), "89504e470d0a1a0a", `${file} is not a PNG`);
+      const width = bytes.readUInt32BE(16);
+      const height = bytes.readUInt32BE(20);
+      assert.deepEqual([width, height], [Number(size), Number(size)], `${file} should be ${size}×${size}`);
+    }
+  });
+
   test("asks for every permission the code uses, and no others", () => {
     const used = {
       debugger: /chrome\.debugger\./,
