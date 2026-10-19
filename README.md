@@ -1,6 +1,7 @@
 # Tab Selfie
 
 [![Tests](https://github.com/huckbit/tab-selfie/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/huckbit/tab-selfie/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fhuckbit.github.io%2Ftab-selfie%2Fcoverage.json)](https://huckbit.github.io/tab-selfie/)
 [![Version](https://img.shields.io/github/manifest-json/v/huckbit/tab-selfie)](manifest.json)
 [![Manifest V3](https://img.shields.io/badge/manifest-v3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 [![License: MIT](https://img.shields.io/github/license/huckbit/tab-selfie)](LICENSE)

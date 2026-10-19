@@ -18,3 +18,31 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+
+  # Publishes the coverage report to GitHub Pages after each push to main.
+  coverage:
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm run coverage
+      - run: node scripts/coverage-report.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage/html
+      - id: deploy
+        uses: actions/deploy-pages@v4

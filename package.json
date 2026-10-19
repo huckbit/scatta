@@ -3,7 +3,8 @@
   "private": true,
   "description": "Chrome extension: screenshot the visible area or full page to the clipboard or a file.",
   "scripts": {
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"test/*.test.js\""
   },
   "engines": {
     "node": ">=22"
