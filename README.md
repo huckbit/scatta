@@ -13,17 +13,21 @@ A Chrome extension that takes a screenshot of the current tab, either the visibl
 
 Tab Selfie isn't on the Chrome Web Store, so you load it yourself:
 
-1. Download or clone this folder to your computer.
+1. Go to the [latest release](https://github.com/huckbit/tab-selfie/releases/latest), download the `tab-selfie-v….zip` file under **Assets** and unzip it.
 2. In Chrome, go to `chrome://extensions`.
 3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and select the `tab-selfie` folder (the one with `manifest.json` in it).
+4. Click **Load unpacked** and select the unzipped `tab-selfie` folder (the one with `manifest.json` in it).
 5. Click the puzzle icon in the toolbar and pin **Tab Selfie** so it's easy to reach.
+
+Keep the folder somewhere permanent (not Downloads): Chrome loads the extension from it every time it starts.
 
 <!-- Screenshot: chrome://extensions with Developer mode and Load unpacked highlighted -->
 
 ### Updating
 
-After you change the code or pull a new version, go to `chrome://extensions` and click the reload icon on the Tab Selfie card.
+Download the zip from the [latest release](https://github.com/huckbit/tab-selfie/releases/latest), replace the old `tab-selfie` folder with the new one, then go to `chrome://extensions` and click the reload icon on the Tab Selfie card.
+
+If you're working from a clone of this repo, pull or edit the code and click the same reload icon.
 
 ## Use
 
