@@ -2,7 +2,7 @@
 
 ## Tests
 
-Tests use Node's built-in test runner, so there's nothing to install apart from Node 20 or newer (`brew install node` on a Mac).
+Tests use Node's built-in test runner, so there's nothing to install apart from Node 22 or newer (`brew install node` on a Mac).
 
 ```sh
 npm test

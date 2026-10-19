@@ -1,5 +1,7 @@
 # Tab Selfie
 
+[![Tests](https://github.com/huckbit/tab-selfie/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/huckbit/tab-selfie/actions/workflows/test.yml)
+
 A Chrome extension that takes a screenshot of the current tab, either the visible area or the full page, and copies it to your clipboard or saves it as a PNG.
 
 ![Tab Selfie popup](docs/popup.png)

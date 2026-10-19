@@ -3,9 +3,9 @@
   "private": true,
   "description": "Chrome extension: screenshot the visible area or full page to the clipboard or a file.",
   "scripts": {
-    "test": "node --test test/"
+    "test": "node --test \"test/*.test.js\""
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
