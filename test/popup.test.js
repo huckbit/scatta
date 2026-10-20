@@ -1,6 +1,6 @@
 const { test, describe } = require("node:test");
 const assert = require("node:assert/strict");
-const { loadPopup, pngBase64, pngSize } = require("./helpers");
+const { loadPopup, pngBase64, pngSize, flush } = require("./helpers");
 
 describe("Save as file toggle", () => {
   test("defaults to copying", async () => {
@@ -199,4 +199,80 @@ describe("Copy full page", () => {
     assert.ok(methods(calls).includes("Emulation.clearDeviceMetricsOverride"));
     assert.match(elements.status.textContent, /Couldn't save the file/);
   });
+});
+
+describe("Settings link", () => {
+  test("opens the settings page", async () => {
+    const { elements, calls } = await loadPopup();
+    let prevented = false;
+    await elements.settings.dispatch("click", { preventDefault() { prevented = true; } });
+    assert.equal(calls.openOptionsPage, 1);
+    assert.ok(prevented, "should not also follow the link");
+  });
+});
+
+describe("Auto-close", () => {
+  const closeTimers = (calls) => calls.timers.filter((t) => t.ms !== 60000);
+
+  test("stays open when the setting is off", async () => {
+    const { elements, calls } = await loadPopup();
+    await elements.visible.dispatch("click");
+    assert.equal(closeTimers(calls).length, 0);
+    assert.equal(calls.close, 0);
+  });
+
+  test("closes after the chosen delay once copied", async () => {
+    const { elements, calls } = await loadPopup({ autoClose: true, autoCloseDelay: 3 });
+    await elements.visible.dispatch("click");
+
+    const [timer] = closeTimers(calls);
+    assert.equal(timer.ms, 3000);
+    timer.fn();
+    assert.equal(calls.close, 1);
+  });
+
+  test("waits for the download to finish before counting down", async () => {
+    const { elements, calls, finishDownload } = await loadPopup({
+      autoClose: true, saveFile: true, downloadState: "in_progress"
+    });
+    const clicked = elements.full.dispatch("click");
+    await flush();
+    await flush();
+    assert.equal(closeTimers(calls).length, 0, "should not start while the file is still saving");
+
+    finishDownload("complete");
+    await clicked;
+    assert.equal(closeTimers(calls)[0].ms, 2000);
+  });
+
+  test("stays open with an error if the download is interrupted", async () => {
+    const { elements, calls } = await loadPopup({ autoClose: true, saveFile: true, downloadState: "interrupted" });
+    await elements.visible.dispatch("click");
+
+    assert.equal(closeTimers(calls).length, 0);
+    assert.equal(elements.status.className, "error");
+    assert.match(elements.status.textContent, /Couldn't save the file/);
+  });
+
+  test("stays open when there is a long-page warning", async () => {
+    const { elements, calls } = await loadPopup({ autoClose: true, pages: [{ width: 1280, height: 9000 }] });
+    await elements.full.dispatch("click");
+    assert.equal(elements.status.className, "warn");
+    assert.equal(closeTimers(calls).length, 0);
+  });
+
+  test("stays open on an error", async () => {
+    const { elements, calls } = await loadPopup({ autoClose: true, failClipboard: new Error("Document is not focused.") });
+    await elements.visible.dispatch("click");
+    assert.equal(closeTimers(calls).length, 0);
+  });
+
+  for (const type of ["pointerdown", "keydown"]) {
+    test(`is cancelled by a ${type} in the popup`, async () => {
+      const { elements, calls, document } = await loadPopup({ autoClose: true });
+      await elements.visible.dispatch("click");
+      await document.dispatch(type);
+      assert.equal(closeTimers(calls)[0].cleared, true);
+    });
+  }
 });

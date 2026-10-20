@@ -10,6 +10,8 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 const manifest = JSON.parse(read("manifest.json"));
 const html = read("popup.html");
 const js = read("popup.js");
+const optionsHtml = read("options.html");
+const optionsJs = read("options.js");
 
 describe("manifest.json", () => {
   test("is Manifest V3 with a name and description", () => {
@@ -27,6 +29,7 @@ describe("manifest.json", () => {
   test("points at files that exist", () => {
     const files = [
       manifest.action.default_popup,
+      manifest.options_ui.page,
       ...Object.values(manifest.icons),
       ...Object.values(manifest.action.default_icon)
     ];
@@ -89,5 +92,24 @@ describe("popup.html", () => {
   test("has no inline scripts (blocked by the extension security policy)", () => {
     assert.doesNotMatch(html, /<script>(?!\s*<\/script>)/);
     assert.doesNotMatch(html, /\son[a-z]+="/i);
+  });
+});
+
+describe("options.html", () => {
+  test("has every element options.js looks up", () => {
+    const ids = [...optionsJs.matchAll(/getElementById\("([^"]+)"\)/g)].map((m) => m[1]);
+    assert.ok(ids.length > 0);
+    for (const id of ids) {
+      assert.match(optionsHtml, new RegExp(`id="${id}"`), `options.html is missing #${id}`);
+    }
+  });
+
+  test("loads options.js", () => {
+    assert.match(optionsHtml, /<script src="options\.js"><\/script>/);
+  });
+
+  test("has no inline scripts (blocked by the extension security policy)", () => {
+    assert.doesNotMatch(optionsHtml, /<script>(?!\s*<\/script>)/);
+    assert.doesNotMatch(optionsHtml, /\son[a-z]+="/i);
   });
 });
