@@ -5,10 +5,15 @@ const visibleBtn = document.getElementById("visible");
 const statusEl = document.getElementById("status");
 const saveToggle = document.getElementById("save-file");
 const toggleHint = document.getElementById("toggle-hint");
+const settingsLink = document.getElementById("settings");
 
 // Pages taller than this (in image pixels) get a gentle warning,
 // because big images are shrunk when pasted into a chat.
 const TALL_WARNING_PX = 5000;
+
+// Set on the settings page (options.html).
+const settings = { autoClose: false, autoCloseDelay: 2 };
+let closeTimer = null;
 
 function updateLabels() {
   const save = saveToggle.checked;
@@ -18,10 +23,35 @@ function updateLabels() {
   toggleHint.textContent = save ? "On: saves a PNG to Downloads" : "Off: copies to the clipboard";
 }
 
-chrome.storage.local.get({ saveFile: false }).then(({ saveFile }) => {
+// Makes full page the first, highlighted button, so Enter takes it.
+function useFullPageAsDefault() {
+  visibleBtn.before(fullBtn);
+  fullBtn.className = "btn primary";
+  visibleBtn.className = "btn";
+  fullBtn.focus();
+}
+
+chrome.storage.local.get({ saveFile: false, defaultMode: "visible", ...settings }).then(({ saveFile, defaultMode, autoClose, autoCloseDelay }) => {
   saveToggle.checked = saveFile;
+  if (defaultMode === "full") useFullPageAsDefault();
+  settings.autoClose = autoClose;
+  settings.autoCloseDelay = autoCloseDelay;
   updateLabels();
 });
+
+settingsLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  chrome.runtime.openOptionsPage();
+});
+
+// Any click or key press means the user wants to do something else,
+// so don't close the popup on them.
+function cancelClose() {
+  clearTimeout(closeTimer);
+  closeTimer = null;
+}
+document.addEventListener("pointerdown", cancelClose);
+document.addEventListener("keydown", cancelClose);
 
 saveToggle.addEventListener("change", () => {
   chrome.storage.local.set({ saveFile: saveToggle.checked });
@@ -68,11 +98,44 @@ function makeFileName(tab) {
 async function saveBlob(blob, tab) {
   const url = URL.createObjectURL(blob);
   try {
-    await chrome.downloads.download({ url, filename: makeFileName(tab), saveAs: false });
+    return await chrome.downloads.download({ url, filename: makeFileName(tab), saveAs: false });
   } finally {
     // Give Chrome time to read the file before freeing it.
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
+}
+
+// Resolves with the download's final state ("complete" or "interrupted").
+// Closing the popup frees the image, so a big file must finish first.
+function waitForDownload(id) {
+  return new Promise((resolve) => {
+    const finish = (state) => {
+      chrome.downloads.onChanged.removeListener(onChanged);
+      resolve(state);
+    };
+    const onChanged = (delta) => {
+      if (delta.id === id && delta.state && delta.state.current !== "in_progress") {
+        finish(delta.state.current);
+      }
+    };
+    chrome.downloads.onChanged.addListener(onChanged);
+    // It may already be done before the listener was added.
+    chrome.downloads.search({ id }).then(([item]) => {
+      if (item && item.state !== "in_progress") finish(item.state);
+    });
+  });
+}
+
+async function closeWhenDone(downloadId) {
+  if (downloadId !== undefined) {
+    const state = await waitForDownload(downloadId);
+    if (state !== "complete") {
+      setStatus(friendlyError("Download interrupted"), "error");
+      return;
+    }
+  }
+  cancelClose();
+  closeTimer = setTimeout(() => window.close(), settings.autoCloseDelay * 1000);
 }
 
 async function describeSize(blob) {
@@ -179,15 +242,18 @@ function friendlyError(err) {
 }
 
 async function run(mode) {
+  cancelClose();
   setBusy(true);
   setStatus(mode === "full" ? "Capturing the full page..." : "Capturing the visible area...");
+  let closeAfter = false;
+  let downloadId;
   try {
     const tab = await getActiveTab();
     const blob = mode === "full" ? await captureFullPage(tab) : await captureVisible(tab);
 
     const saving = saveToggle.checked;
     if (saving) {
-      await saveBlob(blob, tab);
+      downloadId = await saveBlob(blob, tab);
     } else {
       // Bring focus back to the popup before writing to the clipboard.
       window.focus();
@@ -205,6 +271,8 @@ async function run(mode) {
       );
     } else {
       setStatus(done, "ok");
+      // Only close on a plain success: warnings and errors need reading.
+      closeAfter = settings.autoClose;
     }
   } catch (err) {
     console.error(err);
@@ -212,6 +280,7 @@ async function run(mode) {
   } finally {
     setBusy(false);
   }
+  if (closeAfter) await closeWhenDone(downloadId);
 }
 
 fullBtn.addEventListener("click", () => run("full"));

@@ -7,6 +7,7 @@ const vm = require("node:vm");
 
 const ROOT = path.join(__dirname, "..");
 const POPUP_JS = fs.readFileSync(path.join(ROOT, "popup.js"), "utf8");
+const OPTIONS_JS = fs.readFileSync(path.join(ROOT, "options.js"), "utf8");
 
 // Just enough of a PNG (signature + IHDR) for the size to be read back.
 function pngBase64(width, height) {
@@ -29,6 +30,9 @@ function fakeElement(props = {}) {
   return {
     textContent: "",
     className: "",
+    focused: false,
+    before(other) { this.movedBefore = other; },
+    focus() { this.focused = true; },
     checked: false,
     disabled: false,
     ...props,
@@ -37,8 +41,8 @@ function fakeElement(props = {}) {
     },
     // Fires the event and returns whatever the handlers return,
     // so tests can await the async work a click starts.
-    dispatch(type) {
-      return Promise.all((listeners[type] || []).map((fn) => fn()));
+    dispatch(type, event = { preventDefault() {} }) {
+      return Promise.all((listeners[type] || []).map((fn) => fn(event)));
     }
   };
 }
@@ -51,6 +55,10 @@ const own = (value) => (value === undefined ? value : JSON.parse(JSON.stringify(
 
 // options:
 //   saveFile       initial stored "Save as file" setting
+//   defaultMode / autoClose / autoCloseDelay   stored settings-page values
+//   downloadState  state Chrome reports for a saved file ("complete",
+//                  "interrupted", or "in_progress" to finish it later
+//                  with finishDownload)
 //   tab            the active tab (or null for none)
 //   visible        { width, height } of the visible-area capture
 //   pages          list of page measurements returned in turn by the
@@ -59,6 +67,10 @@ const own = (value) => (value === undefined ? value : JSON.parse(JSON.stringify(
 async function loadPopup(options = {}) {
   const {
     saveFile = false,
+    defaultMode = "visible",
+    autoClose = false,
+    autoCloseDelay = 2,
+    downloadState = "complete",
     tab = { id: 7, windowId: 3, url: "https://www.example.com/some/page" },
     visible = { width: 1280, height: 800 },
     pages = [{ width: 1280, height: 3000 }],
@@ -73,25 +85,36 @@ async function loadPopup(options = {}) {
     clipboard: [],
     downloads: [],
     debugger: [],
-    focus: 0
+    focus: 0,
+    close: 0,
+    openOptionsPage: 0,
+    timers: []
   };
 
   const elements = {
-    full: fakeElement(),
-    visible: fakeElement(),
+    full: fakeElement({ className: "btn" }),
+    visible: fakeElement({ className: "btn primary" }),
     status: fakeElement(),
     "save-file": fakeElement(),
-    "toggle-hint": fakeElement()
+    "toggle-hint": fakeElement(),
+    settings: fakeElement()
   };
+  const doc = fakeElement({
+    getElementById: (id) => elements[id],
+    querySelectorAll: (sel) => (sel === ".action" ? actionLabels : [])
+  });
   const actionLabels = [fakeElement({ textContent: "Copy" }), fakeElement({ textContent: "Copy" })];
 
   let measureIndex = 0;
   const chrome = {
     storage: {
       local: {
-        get: async (defaults) => ({ ...defaults, saveFile }),
+        get: async (defaults) => ({ ...defaults, saveFile, defaultMode, autoClose, autoCloseDelay }),
         set: async (value) => { calls.storageSet.push(own(value)); }
       }
+    },
+    runtime: {
+      openOptionsPage: () => { calls.openOptionsPage++; }
     },
     tabs: {
       query: async () => (tab ? [tab] : []),
@@ -124,17 +147,26 @@ async function loadPopup(options = {}) {
         if (failDownload) throw failDownload;
         calls.downloads.push(own(opts));
         return 1;
+      },
+      search: async ({ id }) => [{ id, state: downloadState }],
+      onChanged: {
+        listeners: [],
+        addListener(fn) { this.listeners.push(fn); },
+        removeListener(fn) { this.listeners = this.listeners.filter((l) => l !== fn); }
       }
     }
+  };
+  const finishDownload = (state = "complete") => {
+    for (const fn of [...chrome.downloads.onChanged.listeners]) fn({ id: 1, state: { current: state } });
   };
 
   const sandbox = {
     chrome,
-    document: {
-      getElementById: (id) => elements[id],
-      querySelectorAll: (sel) => (sel === ".action" ? actionLabels : [])
+    document: doc,
+    window: {
+      focus: () => { calls.focus++; },
+      close: () => { calls.close++; }
     },
-    window: { focus: () => { calls.focus++; } },
     navigator: {
       clipboard: {
         write: async (items) => {
@@ -148,8 +180,15 @@ async function loadPopup(options = {}) {
     },
     createImageBitmap: async (blob) => ({ ...(await pngSize(blob)), close() {} }),
     // Short waits (the page re-layout pause) run at once; long ones
-    // (freeing the download URL after a minute) are skipped.
-    setTimeout: (fn, ms) => (ms >= 1000 ? 0 : setImmediate(fn)),
+    // (auto-close, freeing the download URL) are kept in calls.timers
+    // for tests to run or check.
+    setTimeout: (fn, ms) => {
+      if (ms < 1000) return setImmediate(fn);
+      const timer = { fn, ms, cleared: false };
+      calls.timers.push(timer);
+      return timer;
+    },
+    clearTimeout: (timer) => { if (timer) timer.cleared = true; },
     Blob,
     URL,
     atob,
@@ -162,7 +201,36 @@ async function loadPopup(options = {}) {
   vm.runInContext(POPUP_JS, sandbox, { filename: path.join(ROOT, "popup.js") });
   await flush(); // let the stored setting load
 
-  return { popup: sandbox, elements, actionLabels, calls };
+  return { popup: sandbox, elements, actionLabels, document: doc, calls, finishDownload };
 }
 
-module.exports = { ROOT, loadPopup, pngBase64, pngSize, flush };
+// Loads options.js with fake settings-page elements and storage.
+async function loadOptions(stored = {}) {
+  const calls = { storageSet: [] };
+  const elements = {
+    "default-mode": fakeElement({ value: "" }),
+    "auto-close": fakeElement(),
+    "auto-close-delay": fakeElement({ value: "" }),
+    "delay-row": fakeElement(),
+    saved: fakeElement()
+  };
+  const sandbox = {
+    chrome: {
+      storage: {
+        local: {
+          get: async (defaults) => ({ ...defaults, ...stored }),
+          set: async (value) => { calls.storageSet.push(own(value)); }
+        }
+      }
+    },
+    document: { getElementById: (id) => elements[id] },
+    Number,
+    String
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(OPTIONS_JS, sandbox, { filename: path.join(ROOT, "options.js") });
+  await flush();
+  return { elements, calls };
+}
+
+module.exports = { ROOT, loadPopup, loadOptions, pngBase64, pngSize, flush };
