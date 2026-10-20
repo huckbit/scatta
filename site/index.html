@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tab Selfie</title>
+<meta name="description" content="A Chrome extension that copies a screenshot of the visible area or the full page to your clipboard, or saves it as a PNG.">
+<link rel="icon" href="icon128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* Colours come from the extension icon (#1a73e8 on white). */
+  :root {
+    color-scheme: dark;
+    --bg: #0b1d3a;
+    --panel: #11284d;
+    --line: #1f3d6e;
+    --blue: #1a73e8;
+    --blue-hover: #3b88ee;
+    --sky: #a9caf6;
+    --pale: #dce9fb;
+    --fg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--sky); }
+  a:hover { color: var(--pale); }
+  :focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 6px; }
+  code, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+  code { background: var(--panel); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; }
+  kbd {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid var(--line);
+    border-bottom-width: 3px;
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--pale);
+    white-space: nowrap;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--fg); text-decoration: none; font-weight: 800; font-size: 1.1rem; }
+  .brand img { width: 32px; height: 32px; }
+  nav ul { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; }
+  nav ul a { color: var(--pale); text-decoration: none; font-weight: 600; font-size: .95rem; }
+  @media (max-width: 600px) { nav ul { display: none; } }
+
+  .hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center; padding: 48px 0 80px; }
+  @media (max-width: 820px) { .hero { grid-template-columns: 1fr; padding-top: 24px; } }
+  h1 { font-size: clamp(2.6rem, 7vw, 4.5rem); line-height: 1.05; font-weight: 800; margin: 0 0 20px; letter-spacing: -.02em; }
+  h1 span { color: var(--sky); }
+  .lead { font-size: 1.15rem; color: var(--pale); margin: 0 0 32px; max-width: 34em; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 26px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  .btn.primary { background: var(--blue); color: #fff; }
+  .btn.primary:hover { background: var(--blue-hover); color: #fff; }
+  .btn.secondary { color: var(--pale); border: 2px solid var(--line); }
+  .btn.secondary:hover { border-color: var(--sky); color: #fff; }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .release { margin: 14px 0 0; font-size: .9rem; color: var(--sky); min-height: 1.6em; }
+  .shot { justify-self: center; position: relative; }
+  .shot img { display: block; width: 100%; max-width: 360px; height: auto; border-radius: 16px; box-shadow: 0 30px 60px rgba(0, 0, 0, .45), 0 0 0 1px var(--line); }
+
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; margin: 0 0 12px; letter-spacing: -.01em; }
+  .intro { color: var(--pale); margin: 0 0 40px; max-width: 40em; font-size: 1.05rem; }
+  h3 { font-size: 1.2rem; margin: 0 0 6px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
+  .card p { margin: 0; color: var(--pale); }
+  .card .tag { display: inline-block; font-size: .8rem; font-weight: 600; color: var(--sky); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+
+  ol.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; gap: 14px; }
+  ol.steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 20px;
+    align-items: start;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px 26px;
+  }
+  ol.steps li::before { content: counter(step); font-size: 3rem; font-weight: 800; line-height: 1; color: var(--blue); }
+  ol.steps p { margin: 0; color: var(--pale); }
+  @media (max-width: 520px) {
+    ol.steps li { grid-template-columns: 1fr; gap: 6px; padding: 20px; }
+    ol.steps li::before { font-size: 2.2rem; }
+  }
+  .note { margin: 24px 0 0; padding: 18px 22px; border-left: 4px solid var(--blue); background: var(--panel); border-radius: 0 12px 12px 0; color: var(--pale); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 14px 20px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: 0; background: var(--panel); color: var(--sky); font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
+  td { color: var(--pale); }
+  td:first-child { white-space: nowrap; }
+  .big-claim { font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; margin: 32px 0 0; }
+
+  footer { border-top: 1px solid var(--line); padding: 48px 0 64px; color: var(--sky); }
+  footer .cta { font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; color: var(--fg); margin: 0 0 16px; }
+  footer ul { display: flex; flex-wrap: wrap; gap: 8px 24px; list-style: none; padding: 0; margin: 32px 0 0; font-size: .95rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#top"><img src="icon128.png" alt="">Tab Selfie</a>
+    <ul>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#use">Use</a></li>
+      <li><a href="#settings">Settings</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero" id="top">
+    <div>
+      <h1>Screenshot any tab in <span>one click.</span></h1>
+      <p class="lead">A Chrome extension that copies the visible area or the whole page to your clipboard, or saves it as a PNG. Free, open source, and your screenshots never leave your computer.</p>
+      <div class="actions">
+        <a class="btn primary" id="download" href="https://github.com/huckbit/tab-selfie/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
+          <span id="download-label">Download the latest version</span>
+        </a>
+        <a class="btn secondary" href="#install">How to install</a>
+      </div>
+      <p class="release" id="release" aria-live="polite"></p>
+    </div>
+    <div class="shot">
+      <img src="popup.png" width="328" height="352" alt="The Tab Selfie popup, with Copy visible area highlighted, Copy full page below it and a Save as file switch">
+    </div>
+  </header>
+</div>
+
+<main class="wrap">
+  <section aria-labelledby="features">
+    <h2 id="features">Two ways to snap.</h2>
+    <p class="intro">Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (<kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on a Mac), pick one, then paste it anywhere.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="tag">Default</span>
+        <h3>Copy visible area</h3>
+        <p>Exactly what you can see on screen right now. It's the highlighted button, so the shortcut then <kbd>Enter</kbd> does it.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Whole page</span>
+        <h3>Copy full page</h3>
+        <p>The entire page from top to bottom in one image, including apps that scroll inside their own panel.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Optional</span>
+        <h3>Save as file</h3>
+        <p>Switch it on to save a PNG to <code>Downloads/tab-selfie/</code>, named after the site and the time, instead of copying.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="install">
+    <h2 id="install">Install in five steps.</h2>
+    <p class="intro">Tab Selfie isn't on the Chrome Web Store, so you add it to Chrome yourself. It takes about a minute.</p>
+    <ol class="steps">
+      <li><div><h3>Download and unzip</h3><p><a href="https://github.com/huckbit/tab-selfie/releases/latest" class="download-link">Download the latest zip</a> and unzip it. You'll get a folder called <code>tab-selfie</code>.</p></div></li>
+      <li><div><h3>Open the extensions page</h3><p>In Chrome, type <code>chrome://extensions</code> in the address bar and press <kbd>Enter</kbd>.</p></div></li>
+      <li><div><h3>Turn on Developer mode</h3><p>Use the switch in the top right corner of the page.</p></div></li>
+      <li><div><h3>Load the folder</h3><p>Click <strong>Load unpacked</strong> and select the unzipped <code>tab-selfie</code> folder (the one with <code>manifest.json</code> inside).</p></div></li>
+      <li><div><h3>Pin it</h3><p>Click the puzzle piece icon in the toolbar and pin <strong>Tab Selfie</strong>, so it's always one click away.</p></div></li>
+    </ol>
+    <p class="note">Keep the folder somewhere permanent, not in Downloads. Chrome loads Tab Selfie from it every time it starts.</p>
+  </section>
+
+  <section aria-labelledby="use">
+    <h2 id="use">Then just snap.</h2>
+    <p class="intro">Everything happens in the small popup.</p>
+    <ol class="steps">
+      <li><div><h3>Open the page you want</h3><p>Any normal web page works.</p></div></li>
+      <li><div><h3>Open Tab Selfie</h3><p>Click the camera icon, or press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (<kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on a Mac).</p></div></li>
+      <li><div><h3>Choose what to capture</h3><p><strong>Copy visible area</strong> for what's on screen, or <strong>Copy full page</strong> for everything.</p></div></li>
+      <li><div><h3>Paste it</h3><p>Press <kbd>Cmd</kbd> + <kbd>V</kbd> (or <kbd>Ctrl</kbd> + <kbd>V</kbd>) in a chat, document or email.</p></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="settings">
+    <h2 id="settings">Make it yours.</h2>
+    <p class="intro">Open the settings with the ⚙ icon in the popup, or right-click the Tab Selfie icon and choose <strong>Options</strong>.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>Full page as the main button</h3>
+        <p>Set <strong>Main button</strong> to <strong>Full page</strong> and the shortcut then <kbd>Enter</kbd> captures the whole page.</p>
+      </div>
+      <div class="card">
+        <h3>Close after the screenshot</h3>
+        <p>The popup closes itself 1 to 5 seconds after a successful capture. It stays open on warnings, errors, or if you click in it. Off by default.</p>
+      </div>
+      <div class="card">
+        <h3>Change the shortcut</h3>
+        <p>Go to <code>chrome://extensions/shortcuts</code> and pick any key combination you like.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="good-to-know">
+    <h2 id="good-to-know">Good to know.</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>The yellow "debugging" bar</h3>
+        <p>A full page capture briefly shows a bar saying Tab Selfie started debugging the browser. That's normal: Chrome needs it to render the whole page at once, and it disappears straight after.</p>
+      </div>
+      <div class="card">
+        <h3>DevTools open?</h3>
+        <p>Full page capture doesn't work while DevTools is open on that tab. Close it and try again.</p>
+      </div>
+      <div class="card">
+        <h3>Pages Chrome protects</h3>
+        <p>Chrome blocks screenshots of <code>chrome://</code> pages, other extensions' pages and the Chrome Web Store.</p>
+      </div>
+      <div class="card">
+        <h3>Very long pages</h3>
+        <p>Chat apps shrink big images, so small text can get hard to read. For detail, use the visible area.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="privacy">
+    <h2 id="privacy">Private by design.</h2>
+    <p class="intro">Tab Selfie only asks for what it needs to take the screenshot you asked for.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Permission</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><td><code>activeTab</code></td><td>Capture the tab you're on, only when you click the icon</td></tr>
+          <tr><td><code>debugger</code></td><td>Render the full page for a full page screenshot</td></tr>
+          <tr><td><code>clipboardWrite</code></td><td>Copy the image to your clipboard</td></tr>
+          <tr><td><code>downloads</code></td><td>Save the PNG when Save as file is on</td></tr>
+          <tr><td><code>storage</code></td><td>Remember your settings</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="big-claim">Nothing is sent anywhere. Your screenshots stay on your computer.</p>
+  </section>
+
+  <section aria-labelledby="updating">
+    <h2 id="updating">Updating.</h2>
+    <p class="intro"><a href="https://github.com/huckbit/tab-selfie/releases/latest" class="download-link">Download the latest zip</a>, replace your old <code>tab-selfie</code> folder with the new one, then click the reload icon on the Tab Selfie card in <code>chrome://extensions</code>.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="cta">Found a bug or have an idea?</p>
+    <a class="btn secondary" href="https://github.com/huckbit/tab-selfie/issues">Open an issue on GitHub</a>
+    <ul>
+      <li><a href="https://github.com/huckbit/tab-selfie">Source code</a></li>
+      <li><a href="https://github.com/huckbit/tab-selfie/releases">All releases</a></li>
+      <li><a href="coverage/">Test coverage</a></li>
+      <li>MIT licence</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  // Point the download links straight at the latest release's zip. If GitHub's
+  // API can't be reached, they keep linking to the latest release page.
+  fetch("https://api.github.com/repos/huckbit/tab-selfie/releases/latest")
+    .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+    .then((release) => {
+      const zip = release.assets.find((a) => a.name.endsWith(".zip"));
+      if (!zip) return;
+      for (const link of document.querySelectorAll("#download, .download-link")) link.href = zip.browser_download_url;
+      document.getElementById("download-label").textContent = `Download ${release.tag_name}`;
+      const date = new Date(release.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      document.getElementById("release").textContent = `Released ${date} · ${Math.round(zip.size / 1024)} KB zip`;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>
