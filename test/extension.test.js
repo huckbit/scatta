@@ -122,3 +122,23 @@ describe("options.html", () => {
     assert.match(optionsHtml, /<a href="https:\/\/github\.com\/huckbit\/tab-selfie\/issues" target="_blank" rel="noopener">/);
   });
 });
+
+describe("site/index.html", () => {
+  const siteHtml = read("site/index.html");
+
+  test("download button falls back to the latest release page", () => {
+    assert.match(siteHtml, /id="download" href="https:\/\/github\.com\/huckbit\/tab-selfie\/releases\/latest"/);
+  });
+
+  test("shows the same shortcut as the manifest", () => {
+    const keys = manifest.commands._execute_action.suggested_key.default.split("+");
+    const shown = keys.map((key) => `<kbd>${key}</kbd>`).join(" + ");
+    assert.ok(siteHtml.includes(shown), `site should show ${shown}`);
+  });
+
+  test("lists every permission the manifest asks for", () => {
+    for (const permission of manifest.permissions) {
+      assert.match(siteHtml, new RegExp(`<code>${permission}</code>`), `site is missing ${permission}`);
+    }
+  });
+});

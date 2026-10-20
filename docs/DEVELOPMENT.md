@@ -28,6 +28,9 @@ The measuring script is sent to the page as text, so coverage can't see inside i
 
 GitHub Actions runs the tests on every pull request into `main` ([.github/workflows/test.yml](../.github/workflows/test.yml)).
 
-After each push to `main` it also publishes the coverage report to [huckbit.github.io/tab-selfie](https://huckbit.github.io/tab-selfie/), which the Coverage badge in the README reads. This needs GitHub Pages turned on once: Settings → Pages → **Source: GitHub Actions**.
+After each push to `main` it also publishes the site to GitHub Pages:
+
+- [huckbit.github.io/tab-selfie](https://huckbit.github.io/tab-selfie/) is the download page and install guide, from [`site/index.html`](../site/index.html). Its download button asks GitHub's API for the latest release and links straight to its zip, so publishing a release updates it without a redeploy.
+- [huckbit.github.io/tab-selfie/coverage](https://huckbit.github.io/tab-selfie/coverage/) is the coverage report, and `coverage/coverage.json` is what the Coverage badge in the README reads. This needs GitHub Pages turned on once: Settings → Pages → **Source: GitHub Actions**.
 
 To make passing tests required before merging, add a branch protection rule on GitHub: Settings → Branches → add a rule for `main` → turn on **Require status checks to pass** and pick **test**. The check only appears in that list after the workflow has run once.
