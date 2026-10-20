@@ -201,6 +201,24 @@ describe("Copy full page", () => {
   });
 });
 
+describe("Main button setting", () => {
+  test("keeps visible area as the main button by default", async () => {
+    const { elements } = await loadPopup();
+    assert.equal(elements.visible.className, "btn primary");
+    assert.equal(elements.full.className, "btn");
+    assert.equal(elements.visible.movedBefore, undefined);
+    assert.equal(elements.full.focused, false);
+  });
+
+  test("moves full page first, highlights and focuses it", async () => {
+    const { elements } = await loadPopup({ defaultMode: "full" });
+    assert.equal(elements.visible.movedBefore, elements.full, "full page should be placed before visible area");
+    assert.equal(elements.full.className, "btn primary");
+    assert.equal(elements.visible.className, "btn");
+    assert.equal(elements.full.focused, true);
+  });
+});
+
 describe("Settings link", () => {
   test("opens the settings page", async () => {
     const { elements, calls } = await loadPopup();

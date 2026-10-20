@@ -23,8 +23,17 @@ function updateLabels() {
   toggleHint.textContent = save ? "On: saves a PNG to Downloads" : "Off: copies to the clipboard";
 }
 
-chrome.storage.local.get({ saveFile: false, ...settings }).then(({ saveFile, autoClose, autoCloseDelay }) => {
+// Makes full page the first, highlighted button, so Enter takes it.
+function useFullPageAsDefault() {
+  visibleBtn.before(fullBtn);
+  fullBtn.className = "btn primary";
+  visibleBtn.className = "btn";
+  fullBtn.focus();
+}
+
+chrome.storage.local.get({ saveFile: false, defaultMode: "visible", ...settings }).then(({ saveFile, defaultMode, autoClose, autoCloseDelay }) => {
   saveToggle.checked = saveFile;
+  if (defaultMode === "full") useFullPageAsDefault();
   settings.autoClose = autoClose;
   settings.autoCloseDelay = autoCloseDelay;
   updateLabels();

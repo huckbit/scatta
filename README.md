@@ -43,6 +43,10 @@ If you're working from a clone of this repo, pull or edit the code and click the
 
 Switch on **Save as file** to save a PNG instead of copying it. Files are saved to `Downloads/tab-selfie/` and named after the site and the time, for example `example.com_2026-10-19_14-05-32.png`. Chrome remembers this setting.
 
+### Make full page the main button
+
+If you mostly capture whole pages, open the settings (⚙ in the popup) and set **Main button** to **Full page**. It then comes first and is highlighted, so **Alt+Shift+S** then **Enter** takes a full page screenshot.
+
 ### Close the popup automatically
 
 Click the ⚙ icon in the popup (or right-click the Tab Selfie icon and choose **Options**) and switch on **Close after the screenshot**. The popup then closes 1 to 5 seconds after a successful capture (you pick the delay). When saving a file, it waits until the download has finished. It stays open if there's a warning or an error, or if you click or press a key in it. This is off by default.
@@ -66,7 +70,7 @@ Go to `chrome://extensions/shortcuts` and set a different key for Tab Selfie.
 | `debugger` | Render the full page for a full page screenshot |
 | `clipboardWrite` | Copy the image to your clipboard |
 | `downloads` | Save the PNG when **Save as file** is on |
-| `storage` | Remember your **Save as file** and auto-close settings |
+| `storage` | Remember your **Save as file** choice and your settings |
 
 Nothing is sent anywhere: screenshots stay on your computer.
 

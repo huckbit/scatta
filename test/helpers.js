@@ -30,6 +30,9 @@ function fakeElement(props = {}) {
   return {
     textContent: "",
     className: "",
+    focused: false,
+    before(other) { this.movedBefore = other; },
+    focus() { this.focused = true; },
     checked: false,
     disabled: false,
     ...props,
@@ -52,7 +55,7 @@ const own = (value) => (value === undefined ? value : JSON.parse(JSON.stringify(
 
 // options:
 //   saveFile       initial stored "Save as file" setting
-//   autoClose / autoCloseDelay   stored settings-page values
+//   defaultMode / autoClose / autoCloseDelay   stored settings-page values
 //   downloadState  state Chrome reports for a saved file ("complete",
 //                  "interrupted", or "in_progress" to finish it later
 //                  with finishDownload)
@@ -64,6 +67,7 @@ const own = (value) => (value === undefined ? value : JSON.parse(JSON.stringify(
 async function loadPopup(options = {}) {
   const {
     saveFile = false,
+    defaultMode = "visible",
     autoClose = false,
     autoCloseDelay = 2,
     downloadState = "complete",
@@ -88,8 +92,8 @@ async function loadPopup(options = {}) {
   };
 
   const elements = {
-    full: fakeElement(),
-    visible: fakeElement(),
+    full: fakeElement({ className: "btn" }),
+    visible: fakeElement({ className: "btn primary" }),
     status: fakeElement(),
     "save-file": fakeElement(),
     "toggle-hint": fakeElement(),
@@ -105,7 +109,7 @@ async function loadPopup(options = {}) {
   const chrome = {
     storage: {
       local: {
-        get: async (defaults) => ({ ...defaults, saveFile, autoClose, autoCloseDelay }),
+        get: async (defaults) => ({ ...defaults, saveFile, defaultMode, autoClose, autoCloseDelay }),
         set: async (value) => { calls.storageSet.push(own(value)); }
       }
     },
@@ -204,6 +208,7 @@ async function loadPopup(options = {}) {
 async function loadOptions(stored = {}) {
   const calls = { storageSet: [] };
   const elements = {
+    "default-mode": fakeElement({ value: "" }),
     "auto-close": fakeElement(),
     "auto-close-delay": fakeElement({ value: "" }),
     "delay-row": fakeElement(),
