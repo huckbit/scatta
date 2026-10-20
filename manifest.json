@@ -3,6 +3,7 @@
   "name": "Tab Selfie",
   "version": "1.4.0",
   "description": "Take a full page or visible area screenshot. Copy it to the clipboard or save it as a file.",
+  "homepage_url": "https://github.com/huckbit/tab-selfie",
   "permissions": [
     "activeTab",
     "debugger",

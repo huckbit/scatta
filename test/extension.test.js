@@ -66,6 +66,10 @@ describe("manifest.json", () => {
   test("has a keyboard shortcut to open the popup", () => {
     assert.ok(manifest.commands._execute_action.suggested_key.default);
   });
+
+  test("links to the GitHub repo", () => {
+    assert.equal(manifest.homepage_url, "https://github.com/huckbit/tab-selfie");
+  });
 });
 
 describe("popup.html", () => {
@@ -111,5 +115,10 @@ describe("options.html", () => {
   test("has no inline scripts (blocked by the extension security policy)", () => {
     assert.doesNotMatch(optionsHtml, /<script>(?!\s*<\/script>)/);
     assert.doesNotMatch(optionsHtml, /\son[a-z]+="/i);
+  });
+
+  test("links to GitHub issues in a new tab", () => {
+    // The page is embedded in chrome://extensions, so a plain link would navigate the dialog.
+    assert.match(optionsHtml, /<a href="https:\/\/github\.com\/huckbit\/tab-selfie\/issues" target="_blank" rel="noopener">/);
   });
 });
