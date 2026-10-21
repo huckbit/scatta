@@ -68,7 +68,7 @@ describe("manifest.json", () => {
   });
 
   test("links to the GitHub repo", () => {
-    assert.equal(manifest.homepage_url, "https://github.com/huckbit/tab-selfie");
+    assert.equal(manifest.homepage_url, "https://github.com/huckbit/scatta");
   });
 });
 
@@ -119,7 +119,7 @@ describe("options.html", () => {
 
   test("links to GitHub issues in a new tab", () => {
     // The page is embedded in chrome://extensions, so a plain link would navigate the dialog.
-    assert.match(optionsHtml, /<a href="https:\/\/github\.com\/huckbit\/tab-selfie\/issues" target="_blank" rel="noopener">/);
+    assert.match(optionsHtml, /<a href="https:\/\/github\.com\/huckbit\/scatta\/issues" target="_blank" rel="noopener">/);
   });
 });
 
@@ -127,7 +127,7 @@ describe("site/index.html", () => {
   const siteHtml = read("site/index.html");
 
   test("download button falls back to the latest release page", () => {
-    assert.match(siteHtml, /id="download" href="https:\/\/github\.com\/huckbit\/tab-selfie\/releases\/latest"/);
+    assert.match(siteHtml, /id="download" href="https:\/\/github\.com\/huckbit\/scatta\/releases\/latest"/);
   });
 
   test("shows the same shortcut as the manifest", () => {

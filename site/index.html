@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tab Selfie</title>
+<title>Scatta</title>
 <meta name="description" content="A Chrome extension that copies a screenshot of the visible area or the full page to your clipboard, or saves it as a PNG.">
 <link rel="icon" href="icon128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,7 +127,7 @@
 <body>
 <div class="wrap">
   <nav>
-    <a class="brand" href="#top"><img src="icon128.png" alt="">Tab Selfie</a>
+    <a class="brand" href="#top"><img src="icon128.png" alt="">Scatta</a>
     <ul>
       <li><a href="#install">Install</a></li>
       <li><a href="#use">Use</a></li>
@@ -139,9 +139,9 @@
   <header class="hero" id="top">
     <div>
       <h1>Screenshot any tab in <span>one click.</span></h1>
-      <p class="lead">A Chrome extension that copies the visible area or the whole page to your clipboard, or saves it as a PNG. Free, open source, and your screenshots never leave your computer.</p>
+      <p class="lead"><em>Scatta</em> is Italian for "snap". A Chrome extension that copies the visible area or the whole page to your clipboard, or saves it as a PNG. Free, open source, and your screenshots never leave your computer.</p>
       <div class="actions">
-        <a class="btn primary" id="download" href="https://github.com/huckbit/tab-selfie/releases/latest">
+        <a class="btn primary" id="download" href="https://github.com/huckbit/scatta/releases/latest">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
           <span id="download-label">Download the latest version</span>
         </a>
@@ -150,7 +150,7 @@
       <p class="release" id="release" aria-live="polite"></p>
     </div>
     <div class="shot">
-      <img src="popup.png" width="328" height="352" alt="The Tab Selfie popup, with Copy visible area highlighted, Copy full page below it and a Save as file switch">
+      <img src="popup.png" width="328" height="352" alt="The Scatta popup, with Copy visible area highlighted, Copy full page below it and a Save as file switch">
     </div>
   </header>
 </div>
@@ -173,22 +173,22 @@
       <div class="card">
         <span class="tag">Optional</span>
         <h3>Save as file</h3>
-        <p>Switch it on to save a PNG to <code>Downloads/tab-selfie/</code>, named after the site and the time, instead of copying.</p>
+        <p>Switch it on to save a PNG to <code>Downloads/scatta/</code>, named after the site and the time, instead of copying.</p>
       </div>
     </div>
   </section>
 
   <section aria-labelledby="install">
     <h2 id="install">Install in five steps.</h2>
-    <p class="intro">Tab Selfie isn't on the Chrome Web Store, so you add it to Chrome yourself. It takes about a minute.</p>
+    <p class="intro">Scatta isn't on the Chrome Web Store, so you add it to Chrome yourself. It takes about a minute.</p>
     <ol class="steps">
-      <li><div><h3>Download and unzip</h3><p><a href="https://github.com/huckbit/tab-selfie/releases/latest" class="download-link">Download the latest zip</a> and unzip it. You'll get a folder called <code>tab-selfie</code>.</p></div></li>
+      <li><div><h3>Download and unzip</h3><p><a href="https://github.com/huckbit/scatta/releases/latest" class="download-link">Download the latest zip</a> and unzip it. You'll get a folder called <code>scatta</code>.</p></div></li>
       <li><div><h3>Open the extensions page</h3><p>In Chrome, type <code>chrome://extensions</code> in the address bar and press <kbd>Enter</kbd>.</p></div></li>
       <li><div><h3>Turn on Developer mode</h3><p>Use the switch in the top right corner of the page.</p></div></li>
-      <li><div><h3>Load the folder</h3><p>Click <strong>Load unpacked</strong> and select the unzipped <code>tab-selfie</code> folder (the one with <code>manifest.json</code> inside).</p></div></li>
-      <li><div><h3>Pin it</h3><p>Click the puzzle piece icon in the toolbar and pin <strong>Tab Selfie</strong>, so it's always one click away.</p></div></li>
+      <li><div><h3>Load the folder</h3><p>Click <strong>Load unpacked</strong> and select the unzipped <code>scatta</code> folder (the one with <code>manifest.json</code> inside).</p></div></li>
+      <li><div><h3>Pin it</h3><p>Click the puzzle piece icon in the toolbar and pin <strong>Scatta</strong>, so it's always one click away.</p></div></li>
     </ol>
-    <p class="note">Keep the folder somewhere permanent, not in Downloads. Chrome loads Tab Selfie from it every time it starts.</p>
+    <p class="note">Keep the folder somewhere permanent, not in Downloads. Chrome loads Scatta from it every time it starts.</p>
   </section>
 
   <section aria-labelledby="use">
@@ -196,7 +196,7 @@
     <p class="intro">Everything happens in the small popup.</p>
     <ol class="steps">
       <li><div><h3>Open the page you want</h3><p>Any normal web page works.</p></div></li>
-      <li><div><h3>Open Tab Selfie</h3><p>Click the camera icon, or press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (<kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on a Mac).</p></div></li>
+      <li><div><h3>Open Scatta</h3><p>Click the camera icon, or press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> (<kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> on a Mac).</p></div></li>
       <li><div><h3>Choose what to capture</h3><p><strong>Copy visible area</strong> for what's on screen, or <strong>Copy full page</strong> for everything.</p></div></li>
       <li><div><h3>Paste it</h3><p>Press <kbd>Cmd</kbd> + <kbd>V</kbd> (or <kbd>Ctrl</kbd> + <kbd>V</kbd>) in a chat, document or email.</p></div></li>
     </ol>
@@ -204,7 +204,7 @@
 
   <section aria-labelledby="settings">
     <h2 id="settings">Make it yours.</h2>
-    <p class="intro">Open the settings with the ⚙ icon in the popup, or right-click the Tab Selfie icon and choose <strong>Options</strong>.</p>
+    <p class="intro">Open the settings with the ⚙ icon in the popup, or right-click the Scatta icon and choose <strong>Options</strong>.</p>
     <div class="cards">
       <div class="card">
         <h3>Full page as the main button</h3>
@@ -226,7 +226,7 @@
     <div class="cards">
       <div class="card">
         <h3>The yellow "debugging" bar</h3>
-        <p>A full page capture briefly shows a bar saying Tab Selfie started debugging the browser. That's normal: Chrome needs it to render the whole page at once, and it disappears straight after.</p>
+        <p>A full page capture briefly shows a bar saying Scatta started debugging the browser. That's normal: Chrome needs it to render the whole page at once, and it disappears straight after.</p>
       </div>
       <div class="card">
         <h3>DevTools open?</h3>
@@ -245,7 +245,7 @@
 
   <section aria-labelledby="privacy">
     <h2 id="privacy">Private by design.</h2>
-    <p class="intro">Tab Selfie only asks for what it needs to take the screenshot you asked for.</p>
+    <p class="intro">Scatta only asks for what it needs to take the screenshot you asked for.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th scope="col">Permission</th><th scope="col">Why</th></tr></thead>
@@ -263,17 +263,18 @@
 
   <section aria-labelledby="updating">
     <h2 id="updating">Updating.</h2>
-    <p class="intro"><a href="https://github.com/huckbit/tab-selfie/releases/latest" class="download-link">Download the latest zip</a>, replace your old <code>tab-selfie</code> folder with the new one, then click the reload icon on the Tab Selfie card in <code>chrome://extensions</code>.</p>
+    <p class="intro"><a href="https://github.com/huckbit/scatta/releases/latest" class="download-link">Download the latest zip</a>, replace your old <code>scatta</code> folder with the new one, then click the reload icon on the Scatta card in <code>chrome://extensions</code>.</p>
+    <p class="note"><strong>Coming from Tab Selfie?</strong> Scatta is the same extension with a new name. Click <strong>Remove</strong> on the Tab Selfie card in <code>chrome://extensions</code>, then install Scatta with the steps above. Your settings start fresh, so set them again if you changed any.</p>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
     <p class="cta">Found a bug or have an idea?</p>
-    <a class="btn secondary" href="https://github.com/huckbit/tab-selfie/issues">Open an issue on GitHub</a>
+    <a class="btn secondary" href="https://github.com/huckbit/scatta/issues">Open an issue on GitHub</a>
     <ul>
-      <li><a href="https://github.com/huckbit/tab-selfie">Source code</a></li>
-      <li><a href="https://github.com/huckbit/tab-selfie/releases">All releases</a></li>
+      <li><a href="https://github.com/huckbit/scatta">Source code</a></li>
+      <li><a href="https://github.com/huckbit/scatta/releases">All releases</a></li>
       <li><a href="coverage/">Test coverage</a></li>
       <li>MIT licence</li>
     </ul>
@@ -283,7 +284,7 @@
 <script>
   // Point the download links straight at the latest release's zip. If GitHub's
   // API can't be reached, they keep linking to the latest release page.
-  fetch("https://api.github.com/repos/huckbit/tab-selfie/releases/latest")
+  fetch("https://api.github.com/repos/huckbit/scatta/releases/latest")
     .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
     .then((release) => {
       const zip = release.assets.find((a) => a.name.endsWith(".zip"));

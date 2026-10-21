@@ -1,4 +1,4 @@
-// Tab Selfie settings page. The popup reads these from chrome.storage.
+// Scatta settings page. The popup reads these from chrome.storage.
 
 const DEFAULTS = { defaultMode: "visible", autoClose: false, autoCloseDelay: 2 };
 

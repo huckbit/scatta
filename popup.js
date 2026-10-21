@@ -1,4 +1,4 @@
-// Tab Selfie: copies a screenshot of the current tab to the clipboard.
+// Scatta: copies a screenshot of the current tab to the clipboard.
 
 const fullBtn = document.getElementById("full");
 const visibleBtn = document.getElementById("visible");
@@ -92,7 +92,7 @@ function makeFileName(tab) {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
-  return `tab-selfie/${host}_${stamp}.png`;
+  return `scatta/${host}_${stamp}.png`;
 }
 
 async function saveBlob(blob, tab) {
@@ -236,7 +236,7 @@ function friendlyError(err) {
     return "Couldn't save the file. Check Chrome's download settings and try again.";
   }
   if (/Document is not focused|clipboard/i.test(msg)) {
-    return "Couldn't copy to the clipboard. Click the Tab Selfie icon again and retry.";
+    return "Couldn't copy to the clipboard. Click the Scatta icon again and retry.";
   }
   return "Something went wrong: " + msg;
 }
@@ -262,7 +262,7 @@ async function run(mode) {
 
     const { width, height } = await describeSize(blob);
     const done = saving
-      ? `Saved to Downloads/tab-selfie (${width} × ${height} px).`
+      ? `Saved to Downloads/scatta (${width} × ${height} px).`
       : `Copied (${width} × ${height} px). Ready to paste.`;
     if (mode === "full" && height > TALL_WARNING_PX) {
       setStatus(
