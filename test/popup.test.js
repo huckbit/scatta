@@ -33,13 +33,13 @@ describe("makeFileName", () => {
   test("uses the host without www and a timestamp", async () => {
     const { popup } = await loadPopup();
     const name = popup.makeFileName({ url: "https://www.example.com/a?b=c" });
-    assert.match(name, /^tab-selfie\/example\.com_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.png$/);
+    assert.match(name, /^scatta\/example\.com_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.png$/);
   });
 
   test("falls back to 'page' when the URL is missing or invalid", async () => {
     const { popup } = await loadPopup();
-    assert.match(popup.makeFileName({}), /^tab-selfie\/page_/);
-    assert.match(popup.makeFileName({ url: "not a url" }), /^tab-selfie\/page_/);
+    assert.match(popup.makeFileName({}), /^scatta\/page_/);
+    assert.match(popup.makeFileName({ url: "not a url" }), /^scatta\/page_/);
   });
 });
 
@@ -101,9 +101,9 @@ describe("Copy visible area", () => {
 
     assert.equal(calls.clipboard.length, 0);
     assert.equal(calls.downloads.length, 1);
-    assert.match(calls.downloads[0].filename, /^tab-selfie\/example\.com_.*\.png$/);
+    assert.match(calls.downloads[0].filename, /^scatta\/example\.com_.*\.png$/);
     assert.equal(calls.downloads[0].saveAs, false);
-    assert.match(elements.status.textContent, /^Saved to Downloads\/tab-selfie \(1280 × 800 px\)\.$/);
+    assert.match(elements.status.textContent, /^Saved to Downloads\/scatta \(1280 × 800 px\)\.$/);
   });
 
   test("shows a friendly error on pages Chrome blocks", async () => {

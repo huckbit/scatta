@@ -80,7 +80,7 @@ function renderPage(files) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tab Selfie coverage</title>
+<title>Scatta coverage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -113,7 +113,7 @@ function renderPage(files) {
 </head>
 <body>
 <main>
-  <div class="hero"><h1>Tab Selfie coverage</h1><div class="big">${overall}%</div></div>
+  <div class="hero"><h1>Scatta coverage</h1><div class="big">${overall}%</div></div>
   <p class="meta">Lines covered by <code>npm test</code> · updated ${stamp}</p>
   <div class="legend">
     <span><i style="background:var(--teal)"></i>ran</span>
