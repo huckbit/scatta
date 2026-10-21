@@ -8,7 +8,7 @@
 
 A Chrome extension that takes a screenshot of the current tab, either the visible area or the full page, and copies it to your clipboard or saves it as a PNG.
 
-<img src="docs/popup.png" alt="Scatta popup" width="328">
+<img src="docs/popup.png" alt="Scatta popup" width="301">
 
 **[Download and install guide: scatta.sooko.uk](https://scatta.sooko.uk/)**
 
